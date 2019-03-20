@@ -1,1 +1,68 @@
+import datetime as dt
+import pandas as pd
+import pandas_datareader.data as web
+from datetime import date
+from arch import arch_model
+import matplotlib.pyplot as plt
+import requests
+import zipfile as zi 
+import io
 
+start = dt.datetime(2000, 1, 2)
+end = dt.datetime(2018,12,31)
+
+sp500 = web.DataReader('^GSPC', 'yahoo', start=start, end=end)
+returns = 100 * sp500['Adj Close'].pct_change().dropna()
+returns.head()
+
+%matplotlib inline
+import seaborn
+seaborn.set_style('darkgrid')
+In [2]: seaborn.mpl.rcParams['figure.figsize'] = (14.0, 8.0)
+seaborn.mpl.rcParams['savefig.dpi'] = 90
+seaborn.mpl.rcParams['font.family'] = 'serif'
+seaborn.mpl.rcParams['font.size'] = 10
+
+plt.plot(returns, 'gold')
+plt.title('Histogram of daily returns')
+plt.grid(True)
+plt.show()
+
+high = 100 * sp500['High'].pct_change().dropna()
+low = 100 * sp500['Low'].pct_change().dropna()
+
+plt.plot(high, 'purple')
+plt.title('Histogram of the highest recorded prices during the day')
+plt.grid(True)
+plt.show()
+
+plt.plot(low, 'pink')
+plt.title('Histogram of the lowest recorded prices during the day')
+plt.grid(True)
+plt.show()
+
+highlowrange= high - low
+
+plt.plot(highlowrange, 'lightgreen')
+plt.title('Histogram of the high-low range')
+plt.grid(True)
+plt.show()
+
+from alpha_vantage.timeseries import TimeSeries
+ts = TimeSeries(key='CF3URV63S1WJY6GV', output_format='pandas')
+data15, meta_data = ts.get_intraday(symbol='SPY',interval='15min', outputsize='full')
+print(data15.head())
+
+from matplotlib.pyplot import figure
+figure(num=None, figsize=(16, 6), dpi=80)
+plt.plot(data15, 'green')
+plt.title('Histogram of 15 min')
+plt.grid(True)
+plt.show()
+
+data15.describe()
+
+from alpha_vantage.timeseries import TimeSeries
+ts = TimeSeries(key='CF3URV63S1WJY6GV', output_format='pandas')
+data5, meta_data = ts.get_intraday(symbol='SPY',interval='5min', outputsize='full')
+print(data5.head())
